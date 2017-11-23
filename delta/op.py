@@ -1,5 +1,4 @@
 import copy
-from delta import op
 
 
 def compose(a, b, keep_null=False):
