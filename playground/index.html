@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Quill Playground</title>
+
+  <link rel="stylesheet" type="text/css" href="quill.snow.css">
+
+  <script type="text/javascript" src="quill.js"></script>
+
+  <script type="text/javascript">
+    function formatOps(ops) {
+      var lines = ['<div class="bracket">[</div>'];
+
+      ops.forEach(function(op) {
+        lines.push('<div class="op">' + JSON.stringify(op) + '</div>');
+      })
+
+      lines.push('<div class="bracket">]</div>');
+
+      return lines.join("\n");
+    }
+
+    function encodeHTML(str) {
+      return str.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+         return '&#'+i.charCodeAt(0)+';';
+      });
+    }
+
+    window.addEventListener('load', function() {
+      window.editor = new Quill('#editor', {
+          modules: { toolbar: '#toolbar' },
+          theme: 'snow'
+      });
+
+      window.editor.emitter.on('editor-change', function(type) {
+          var ops = document.getElementById('ops');
+          var content = document.getElementById('editor').childNodes[0];
+          var source = document.getElementById('source');
+
+          ops.innerHTML = 
+            formatOps(window.editor.getContents().ops);
+
+          source.innerHTML = encodeHTML(content.innerHTML);
+      });
+    });
+  </script>
+
+  <style type="text/css">
+    body {
+      font-family: Helvetica, sans-serif;
+      padding: 0;
+      background-color: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      margin: 0;
+      overflow: hidden;
+    }
+
+    .toolbar {
+      padding: 0px 10px;
+    }
+
+    section {
+      background-color: white;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      width: 50vw;
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    #ops {
+      flex: 1;
+      font-family: monospace;
+      padding: 10px;
+      height: 50vh;
+    }
+
+    #ops .op {
+      margin-left: 10px;
+    }
+
+    #source {
+      height: 50vh;
+      border-top: 1px solid #f0f0f0;
+      padding: 10px;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <section>
+      <div id="toolbar">
+        <span class="ql-formats">
+        <select class="ql-font"></select>
+        <select class="ql-size"></select>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-bold"></button>
+        <button class="ql-italic"></button>
+        <button class="ql-underline"></button>
+        <button class="ql-strike"></button>
+        </span>
+        <span class="ql-formats">
+        <select class="ql-color"></select>
+        <select class="ql-background"></select>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-script" value="sub"></button>
+        <button class="ql-script" value="super"></button>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-header" value="1"></button>
+        <button class="ql-header" value="2"></button>
+        <button class="ql-blockquote"></button>
+        <button class="ql-code-block"></button>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-list" value="ordered"></button>
+        <button class="ql-list" value="bullet"></button>
+        <button class="ql-indent" value="-1"></button>
+        <button class="ql-indent" value="+1"></button>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-direction" value="rtl"></button>
+        <select class="ql-align"></select>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-link"></button>
+        <button class="ql-image"></button>
+        <button class="ql-video"></button>
+        <button class="ql-formula"></button>
+        </span>
+        <span class="ql-formats">
+        <button class="ql-clean"></button>
+        </span>
+      </div>
+      <div id="editor">
+
+      </div>
+    </section>
+    <section>
+      <div id="ops">
+      </div>
+      <div id="source">
+        HI
+      </div>
+    </section>
+  </main>
+</body>
+</html>

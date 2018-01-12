@@ -154,3 +154,4 @@ def test_immutability():
     assert a1 == a2
     assert b1 == b2
     assert attr1 == attr2
+

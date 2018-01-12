@@ -257,6 +257,11 @@ class Delta(object):
         return delta.chop()
 
     def each_line(self, fn, newline='\n'):
+        for line, attributes, index in self.iter_lines():
+            if fn(line, attributes, index) is False:
+                break
+
+    def iter_lines(self, newline='\n'):
         iter = self.iterator()
         line = self.__class__()
         i = 0
@@ -275,12 +280,11 @@ class Delta(object):
             elif index > 0:
                 line.push(iter.next(index))
             else:
-                if fn(line, iter.next(1).get('attributes', {}), i) is False:
-                    return
+                yield line, iter.next(1).get('attributes', {}), i
                 i += 1
                 line = Delta()
         if len(line) > 0:
-            fn(line, {}, i)
+            yield line, {}, i
 
     def transform(self, other, priority=False):
         if isinstance(other, int):
