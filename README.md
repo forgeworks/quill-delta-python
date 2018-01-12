@@ -29,7 +29,7 @@ For example:
 
     html.render(ops)
 
-Results in (without line formatting):
+Result (line formatting added for readability):
     
     <p>Quill</p>
     <p>Editor</p>
