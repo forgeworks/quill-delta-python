@@ -251,6 +251,11 @@ def list_block(block, attrs):
 def list_block(block, attrs):
     return add_class(block, ALIGN_CLASS % attrs['align'])
 
+@format('header', cls=BlockFormat)
+def header_block(block, attrs):
+    block.tag = 'h%s' % attrs['header']
+    return block
+
 
 ### Processors ###
 def append_op(root, op):

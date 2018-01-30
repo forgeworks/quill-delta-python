@@ -136,6 +136,13 @@ def test_header():
     source = '<h5>Quill</h5>'
     assert html.render(ops) == source
 
+    ops = [
+        {"insert":"Quill"},
+        {"insert":"\n", "attributes": {"header": 2}}
+    ]
+    source = '<h2>Quill</h2>'
+    assert html.render(ops) == source
+
 def test_blockquote():
     ops = [
         {"insert":"Quill", "attributes": {"blockquote": True}}
