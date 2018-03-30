@@ -211,3 +211,10 @@ def test_image():
     ]
     source = '<p><img src="https://i.imgur.com/ZMSUFEU.gif"></p>'
     assert html.render(ops) == source
+
+def test_error():
+    ops = [
+        { 'insert': {'image': True} }
+    ]
+    source = '<p><img></p>'
+    assert html.render(ops) == source

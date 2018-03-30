@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 from .base import Delta
 from lxml.html import HtmlElement, Element
@@ -21,6 +22,9 @@ VIDEO_IFRAME_CLASS = 'ql-video'
 INDENT_CLASS = 'ql-indent-%d'
 DIRECTION_CLASS = 'ql-direction-%s'
 ALIGN_CLASS = 'ql-align-%s'
+
+
+logger = logging.getLogger('quill')
 
 
 ### Helpers ###
@@ -66,7 +70,11 @@ class Format:
 
     def __call__(self, root, op):
         if self._check(op):
-            el =  self.fn(root, op)
+            try:
+                el =  self.fn(root, op)
+            except Exception as e:
+                logger.warning("Rendering format failed: %r", e)
+                el = ""
             return el
         return root
 
