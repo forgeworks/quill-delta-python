@@ -145,9 +145,10 @@ def test_header():
 
 def test_blockquote():
     ops = [
-        {"insert":"Quill", "attributes": {"blockquote": True}}
+        {'insert': 'One\nTwo\nQuote'}, 
+        {'insert': '\n', 'attributes': {'blockquote': True}}
     ]
-    source = '<blockquote>Quill</blockquote>'
+    source = '<p>One</p><p>Two</p><blockquote>Quote</blockquote>'
     assert html.render(ops) == source
 
 def test_codeblock():

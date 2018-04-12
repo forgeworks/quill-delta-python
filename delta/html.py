@@ -73,7 +73,7 @@ class Format:
             try:
                 el =  self.fn(root, op)
             except Exception as e:
-                logger.warning("Rendering format failed: %r", e)
+                logger.error("Rendering format failed: %r", e)
                 el = ""
             return el
         return root
@@ -118,25 +118,14 @@ class BlockFormat(Format):
             root = self.fn(root, attrs)
         return root
 
+    def __repr__(self):
+        return "<BlockFormat %s>" % self.name
+
 
 ### Formats ###
 @format
 def header(root, op):
     root.tag = 'h%s' % op['attributes']['header']
-    return root
-
-@format
-def blockquote(root, op):
-    root.tag = 'blockquote'
-    return root
-
-@format("code-block")
-def code_block(root, op):
-    root.tag = 'pre'
-    root.attrib.update({
-        'class': CODE_BLOCK_CLASS,
-        'spellcheck': 'false'
-    })
     return root
 
 @format
@@ -263,6 +252,20 @@ def list_block(block, attrs):
 def header_block(block, attrs):
     block.tag = 'h%s' % attrs['header']
     return block
+
+@format('blockquote', cls=BlockFormat)
+def blockquote(block, attrs):
+    block.tag = 'blockquote'
+    return block
+
+@format("code-block")
+def code_block(root, op):
+    root.tag = 'pre'
+    root.attrib.update({
+        'class': CODE_BLOCK_CLASS,
+        'spellcheck': 'false'
+    })
+    return root
 
 
 ### Processors ###
