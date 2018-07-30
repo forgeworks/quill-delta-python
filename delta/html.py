@@ -232,7 +232,7 @@ LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul'}
 def list_block(block, attrs):
     block.tag = 'li'
     previous = block.getprevious()
-    list_tag = LIST_TYPES[attrs['list']]
+    list_tag = LIST_TYPES.get(attrs['list'], 'ol')
     if previous is not None and previous.tag == list_tag:
         list_el = previous
     else:
