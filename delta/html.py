@@ -198,7 +198,8 @@ def classes_check(op):
 @format
 def image(root, op):
     el = sub_element(root, 'img')
-    el.attrib['src'] = op['insert']['image']
+    el.attrib['src'] = op['insert']['image'].get('src')
+    el.attrib['alt'] = op['insert']['image'].get('alt')
     return el
 
 @image.check
