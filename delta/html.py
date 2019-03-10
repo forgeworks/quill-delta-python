@@ -17,11 +17,12 @@ CLASSES = {
     }
 }
 
-CODE_BLOCK_CLASS = 'ql-syntax'
-VIDEO_IFRAME_CLASS = 'ql-video'
-INDENT_CLASS = 'ql-indent-%d'
-DIRECTION_CLASS = 'ql-direction-%s'
-ALIGN_CLASS = 'ql-align-%s'
+CODE_BLOCK_CLASS = 'syntax'
+VIDEO_WRAPPER_CLASS = 'video-embed'
+VIDEO_IFRAME_CLASS = 'video'
+INDENT_CLASS = 'indent-%d'
+DIRECTION_CLASS = 'direction-%s'
+ALIGN_CLASS = 'align-%s'
 
 
 logger = logging.getLogger('quill')
@@ -210,15 +211,21 @@ def image_check(op):
 @format
 def video(root, op):
     insert = op.get('insert')
+    div = root.makeelement('div')
+    div.attrib.update({
+        'class': VIDEO_WRAPPER_CLASS
+    })
     iframe = root.makeelement('iframe')
     iframe.attrib.update({
         'class': VIDEO_IFRAME_CLASS,
         'frameborder': '0',
+        'allow': 'accelerometer; encrypted-media; gyroscope; picture-in-picture',
         'allowfullscreen': 'true',
-        'src': op['insert']['video']
+        'src': insert.get('video')
     })
-    root.addprevious(iframe)
-    return iframe
+    div.append(iframe)
+    root.addprevious(div)
+    return div
 
 @video.check
 def video_check(op):
