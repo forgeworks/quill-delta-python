@@ -18,8 +18,7 @@ CLASSES = {
 }
 
 CODE_BLOCK_CLASS = 'syntax'
-VIDEO_WRAPPER_CLASS = 'video-embed'
-VIDEO_IFRAME_CLASS = 'video'
+VIDEO_EMBED_CLASS = 'video-embed'
 INDENT_CLASS = 'indent-%d'
 DIRECTION_CLASS = 'direction-%s'
 ALIGN_CLASS = 'align-%s'
@@ -198,10 +197,11 @@ def classes_check(op):
 
 @format
 def image(root, op):
-    el = sub_element(root, 'img')
+    figure = sub_element(root, 'figure')
+    el = sub_element(figure, 'img')
     el.attrib['src'] = op['insert']['image'].get('src')
     el.attrib['alt'] = op['insert']['image'].get('alt')
-    return el
+    return figure
 
 @image.check
 def image_check(op):
@@ -209,28 +209,44 @@ def image_check(op):
     return isinstance(insert, dict) and insert.get('image')
 
 @format
-def video(root, op):
+def video_embed(root, op):
     insert = op.get('insert')
-    div = root.makeelement('div')
-    div.attrib.update({
-        'class': VIDEO_WRAPPER_CLASS
+    video = insert.get('video_embed', {})
+    figure = sub_element(root, 'figure')
+    figure.attrib.update({
+        'class': VIDEO_EMBED_CLASS
     })
-    iframe = root.makeelement('iframe')
+    iframe = sub_element(figure, 'iframe')
     iframe.attrib.update({
-        'class': VIDEO_IFRAME_CLASS,
         'frameborder': '0',
+        'scrolling': 'no',
         'allow': 'accelerometer; encrypted-media; gyroscope; picture-in-picture',
-        'allowfullscreen': 'true',
-        'src': insert.get('video')
+        'allowfullscreen': None,
+        'mozallowfullscreen': None,
+        'webkitallowfullscreen': None,
+        'oallowfullscreen': None,
+        'msallowfullscreen': None,
+        'allowtransparency': 'true',
+        'src': video.get('src'),
     })
-    div.append(iframe)
-    root.addprevious(div)
-    return div
+    if video.get('class'):
+        iframe.attrib['class'] = video.get('class')
+    if video.get('name'):
+        iframe.attrib['name'] = video.get('name')
 
-@video.check
-def video_check(op):
+    if video.get('script'):
+        script = sub_element(figure, 'script')
+        script.attrib.update({
+            'async': None,
+            'src': video.get('script')
+        })
+
+    return figure
+
+@video_embed.check
+def video_embed_check(op):
     insert = op.get('insert')
-    return isinstance(insert, dict) and insert.get('video')
+    return isinstance(insert, dict) and insert.get('video_embed')
 
 
 ### Block Formats ###
