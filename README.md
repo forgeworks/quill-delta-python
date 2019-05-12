@@ -8,13 +8,32 @@ Some basic pythonizing has been done, but mostly it works exactly like the above
 There is no other python specific documentation at this time, sorry.  Please see the tests
 for reference examples.
 
-# Installation
+## Install with [Poetry](https://poetry.eustace.io/docs/#installation)
+
+With HTML rendering:
+
+    > poetry add -E html quill-delta
+
+Without HTML rendering:
 
     > poetry add quill-delta
 
-Or
+## Install with pip
+
+Note: If you're using `zsh`, see below.
+
+With HTML rendering:
+
+    > pip install quill-delta[html]
+
+With HTML rendering (zsh):
+
+    > pip install quill-delta"[html]"
+
+Without HTML rendering:
 
     > pip install quill-delta
+
 
 # Rendering HTML in Python
 
