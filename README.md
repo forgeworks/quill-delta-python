@@ -8,6 +8,14 @@ Some basic pythonizing has been done, but mostly it works exactly like the above
 There is no other python specific documentation at this time, sorry.  Please see the tests
 for reference examples.
 
+# Installation
+
+  > poetry add quill-delta
+
+- or -
+
+  > pip install quill-delta
+
 # Rendering HTML in Python
 
 This library includes a module `delta.html` that renders html from an operation list,
@@ -40,13 +48,11 @@ Result (line formatting added for readability):
 
 [See test_html.py](tests/test_html.py) for more examples.
 
+
 # Developing
 
 ## Tests
 
-    > python setup.py test
-
-or 
-
     > py.test
+
 
