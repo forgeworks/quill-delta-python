@@ -1,5 +1,0 @@
-pytest==3.2.5
-diff-match-patch
-mock
-lxml
-cssutils
