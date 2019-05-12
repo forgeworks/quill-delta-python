@@ -10,11 +10,11 @@ for reference examples.
 
 # Installation
 
-  > poetry add quill-delta
+    > poetry add quill-delta
 
 Or
 
-  > pip install quill-delta
+    > pip install quill-delta
 
 # Rendering HTML in Python
 
