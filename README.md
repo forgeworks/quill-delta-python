@@ -12,7 +12,7 @@ for reference examples.
 
   > poetry add quill-delta
 
-- or -
+Or
 
   > pip install quill-delta
 
