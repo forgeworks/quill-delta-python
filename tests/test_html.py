@@ -213,6 +213,15 @@ def test_image():
     source = '<p><img src="https://i.imgur.com/ZMSUFEU.gif"></p>'
     assert html.render(ops) == source
 
+
+def test_image_width():
+    ops = [
+        { 'insert': {'image': 'https://i.imgur.com/ZMSUFEU.gif'}, 'attributes': {'width': '196', 'height': '200'}}
+    ]
+    source = '<p><img src="https://i.imgur.com/ZMSUFEU.gif" width="196" height="200"></p>'
+    assert html.render(ops) == source
+
+
 def test_error():
     ops = [
         { 'insert': {'image': True} }

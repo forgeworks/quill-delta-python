@@ -203,7 +203,7 @@ def image(root, op):
     if attrs and attrs.get('width', None):
         el.attrib['width'] = op['attributes']['width']
     if attrs and attrs.get('height', None):
-        el.attrib['height'] = op['attributes']['width']
+        el.attrib['height'] = op['attributes']['height']
     return el
 
 @image.check
