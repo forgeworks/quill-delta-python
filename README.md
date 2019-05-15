@@ -74,12 +74,15 @@ Result (line formatting added for readability):
 If you'd to contribute to quill-delta-python, get started setting your development environment by running:
 
 Checkout the repository
+
     > git clone https://github.com/forgeworks/quill-delta-python.git
 
 Make sure you have python 3 installed, e.g.,
+
     > python --version
 
 From inside your new quill-delta-python directory:
+
     > python3 -m venv env
     > source env/bin/activate
     > pip install poetry
@@ -87,11 +90,8 @@ From inside your new quill-delta-python directory:
 
 ## Tests
 To run tests do:
-    > py.test
 
-## Cleanup
-When your finished with the virtual environment:
-    > deactivate
+    > py.test
 
 
 
