@@ -199,6 +199,11 @@ def classes_check(op):
 def image(root, op):
     el = sub_element(root, 'img')
     el.attrib['src'] = op['insert']['image']
+    attrs = op.get('attributes', None)
+    if attrs and attrs.get('width', None):
+        el.attrib['width'] = op['attributes']['width']
+    if attrs and attrs.get('height', None):
+        el.attrib['height'] = op['attributes']['width']
     return el
 
 @image.check
