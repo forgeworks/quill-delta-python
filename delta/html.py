@@ -1,4 +1,5 @@
 import logging
+import re
 from functools import wraps
 from .base import Delta
 from lxml.html import HtmlElement, Element
@@ -54,7 +55,7 @@ def add_class(element, *classes):
     else:
         current = set()
     classes = current.union(set(classes))
-    element.attrib['class'] = " ".join(sorted(list(classes)))
+    element.attrib['class'] = ' '.join(sorted(list(classes)))
     return element
 
 
@@ -73,8 +74,8 @@ class Format:
             try:
                 el =  self.fn(root, op)
             except Exception as e:
-                logger.error("Rendering format failed: %r", e)
-                el = ""
+                logger.error('Rendering format failed: %r', e)
+                el = ''
             return el
         return root
 
@@ -119,7 +120,7 @@ class BlockFormat(Format):
         return root
 
     def __repr__(self):
-        return "<BlockFormat %s>" % self.name
+        return '<BlockFormat %s>' % self.name
 
 
 ### Formats ###
@@ -282,7 +283,7 @@ def blockquote(block, attrs):
     block.tag = 'blockquote'
     return block
 
-@format("code-block")
+@format('code-block', cls=BlockFormat)
 def code_block(root, op):
     root.tag = 'pre'
     root.attrib.update({
@@ -329,11 +330,15 @@ def render(delta, method='html', pretty=False):
     if not isinstance(delta, Delta):
         delta = Delta(delta)
 
-    root = html.fragment_fromstring("<template></template>")
+    root = html.fragment_fromstring('<template></template>')
     for line, attrs, index in delta.iter_lines():
         append_line(root, line, attrs, index)
 
-    result = "".join(
+    result = ''.join(
         html.tostring(child, method=method, with_tail=True, encoding='unicode', pretty_print=pretty) 
         for child in root)
+
+    # SGM - Hack to combine <pre> tags together
+    # TODO - Fix this at the rendering level
+    result = re.sub(r'\<\/pre\>\s*\<pre[^\>]*\>', '\n', result)
     return result
