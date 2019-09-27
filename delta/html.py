@@ -175,8 +175,15 @@ def color(root, op):
 
 @format
 def link(root, op):
-    el = sub_element(root, 'a')
-    el.attrib['href'] = op['attributes']['link']
+    if type(op['attributes']['link']) is dict:
+        el = sub_element(root, 'a')
+        attrs = ['href', 'target', 'rel', 'nedia', 'type']
+        for key in attrs:
+            if key in op['attributes']['link']:
+                el.attrib[key] = op['attributes']['link'][key]
+    else:
+        el = sub_element(root, 'a')
+        el.attrib['href'] = op['attributes']['link']
     return el
 
 @format
