@@ -129,6 +129,10 @@ class BlockFormat(Format):
 
 ### Formats ###
 @format
+def highlight(root, op):
+    return sub_element(root, 'mark')
+
+@format
 def header(root, op):
     root.tag = 'h%s' % op['attributes']['header']
     return root
@@ -262,17 +266,20 @@ def video_embed_check(op):
 
 
 ### Block Formats ###
-LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul'}
+LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul', 'checked': 'ul', 'unchecked': 'ul'}
 
 @format('list', cls=BlockFormat)
 def list_block(block, attrs):
     block.tag = 'li'
     previous = block.getprevious()
-    list_tag = LIST_TYPES.get(attrs['list'], 'ol')
+    list_type = attrs['list']
+    list_tag = LIST_TYPES.get(list_type, 'ol')
     if previous is not None and previous.tag == list_tag:
         list_el = previous
     else:
         list_el = sub_element(block.getparent(), list_tag)
+    if list_type in ['checked', 'unchecked']:
+        list_el.attrib['data-checked'] = None
     list_el.append(block)
     return block
 
