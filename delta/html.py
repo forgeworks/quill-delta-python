@@ -224,6 +224,18 @@ def image_check(op):
     insert = op.get('insert')
     return isinstance(insert, dict) and insert.get('image')
 
+
+@format
+def divider(root, op):
+    return sub_element(root, 'hr')
+
+
+@divider.check
+def divider_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and isinstance(insert.get('divider'), bool)
+
+
 @format
 def video_embed(root, op):
     insert = op.get('insert')
