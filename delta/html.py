@@ -20,6 +20,7 @@ CLASSES = {
 
 CODE_BLOCK_CLASS = 'syntax'
 VIDEO_EMBED_CLASS = 'video-embed'
+PODCAST_EMBED_CLASS = 'podcast-embed'
 INDENT_CLASS = 'indent-%d'
 DIRECTION_CLASS = 'direction-%s'
 ALIGN_CLASS = 'align-%s'
@@ -275,6 +276,59 @@ def video_embed(root, op):
 def video_embed_check(op):
     insert = op.get('insert')
     return isinstance(insert, dict) and insert.get('video_embed')
+
+
+
+@format
+def podcast_embed(root, op):
+    insert = op.get('insert')
+    podcast = insert.get('podcast_embed', {})
+    figure = sub_element(root, 'figure')
+    figure.attrib.update({
+        'class': PODCAST_EMBED_CLASS
+    })
+    if 'transistor.fm' in podcast.get('src'):
+        iframe = sub_element(figure, 'iframe')
+        iframe.attrib.update({
+            'frameborder': '0',
+            'style': 'width:100%;height: 200px',
+            'scrolling': 'no',
+            'seamless': 'true',
+            'src': podcast.get('src'),
+        })
+    if 'buzzsprout.com' in podcast.get('src'):
+        accId, podId = podcast['src'].split('/')[-1].split('-')
+        div = sub_element(figure, 'div')
+        div.attrib.update({
+            'id': f'buzzsprout-player-{podId}',
+        })
+        script = sub_element(figure, 'script')
+        script.attrib.update({
+            'async': 'true',
+            'src': f'https://www.buzzsprout.com/{accId}/{podId}.js?container_id=buzzsprout-player-{podId}&player=small',
+            'type': 'text/javascript',
+            'charset': 'utf-8'
+        })
+    if 'soundcloud.com' in podcast.get('src'):
+        iframe = sub_element(figure, 'iframe')
+        iframe.attrib.update({
+            'frameborder': '0',
+            'style': 'width:100%;',
+            'scrolling': 'no',
+            'allow': 'autoplay',
+            'src': f'{podcast["src"]}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true',
+        })
+    if podcast.get('class'):
+        iframe.attrib['class'] = podcast.get('class')
+    if podcast.get('name'):
+        iframe.attrib['name'] = podcast.get('name')
+    return figure
+
+
+@podcast_embed.check
+def podcast_embed_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('podcast_embed')
 
 
 ### Block Formats ###
