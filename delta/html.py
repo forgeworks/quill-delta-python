@@ -296,7 +296,7 @@ def podcast_embed(root, op):
             'seamless': 'true',
             'src': source,
         })
-    if 'buzzsprout.com' in source:
+    elif 'buzzsprout.com' in source:
         accId, podId = source.split('/')[-1].split('-')
         div = sub_element(figure, 'div')
         div.attrib.update({
@@ -309,7 +309,7 @@ def podcast_embed(root, op):
             'type': 'text/javascript',
             'charset': 'utf-8'
         })
-    if 'soundcloud.com' in source:
+    elif 'soundcloud.com' in source:
         iframe = sub_element(figure, 'iframe')
         iframe.attrib.update({
             'frameborder': '0',
