@@ -278,7 +278,6 @@ def video_embed_check(op):
     return isinstance(insert, dict) and insert.get('video_embed')
 
 
-
 @format
 def podcast_embed(root, op):
     insert = op.get('insert')
@@ -287,17 +286,18 @@ def podcast_embed(root, op):
     figure.attrib.update({
         'class': PODCAST_EMBED_CLASS
     })
-    if 'transistor.fm' in podcast.get('src'):
+    source = podcast.get('src', '')
+    if 'transistor.fm' in source:
         iframe = sub_element(figure, 'iframe')
         iframe.attrib.update({
             'frameborder': '0',
             'style': 'width:100%;height: 200px',
             'scrolling': 'no',
             'seamless': 'true',
-            'src': podcast.get('src'),
+            'src': source,
         })
-    if 'buzzsprout.com' in podcast.get('src'):
-        accId, podId = podcast['src'].split('/')[-1].split('-')
+    if 'buzzsprout.com' in source:
+        accId, podId = source.split('/')[-1].split('-')
         div = sub_element(figure, 'div')
         div.attrib.update({
             'id': f'buzzsprout-player-{podId}',
@@ -309,19 +309,15 @@ def podcast_embed(root, op):
             'type': 'text/javascript',
             'charset': 'utf-8'
         })
-    if 'soundcloud.com' in podcast.get('src'):
+    if 'soundcloud.com' in source:
         iframe = sub_element(figure, 'iframe')
         iframe.attrib.update({
             'frameborder': '0',
             'style': 'width:100%;',
             'scrolling': 'no',
             'allow': 'autoplay',
-            'src': f'{podcast["src"]}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true',
+            'src': f'{source}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true',
         })
-    if podcast.get('class'):
-        iframe.attrib['class'] = podcast.get('class')
-    if podcast.get('name'):
-        iframe.attrib['name'] = podcast.get('name')
     return figure
 
 
