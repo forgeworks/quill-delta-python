@@ -214,10 +214,25 @@ def classes_check(op):
 
 @format
 def image(root, op):
+    image = op['insert']['image']
     figure = sub_element(root, 'figure')
-    el = sub_element(figure, 'img')
-    el.attrib['src'] = op['insert']['image'].get('src')
-    el.attrib['alt'] = op['insert']['image'].get('alt')
+
+    link = image.get('link')
+    if link:
+        a = sub_element(figure, 'a')
+        img = sub_element(a, 'img')
+
+        a.attrib['href'] = link.get('url')
+        if link.get('openNewTab'):
+            a.attrib['target'] = '_blank'
+            a.attrib['rel'] = 'noopener noreferrer'
+
+    else:
+        img = sub_element(figure, 'img')
+
+    img.attrib['src'] = image.get('src')
+    img.attrib['alt'] = image.get('alt')
+
     return figure
 
 @image.check
