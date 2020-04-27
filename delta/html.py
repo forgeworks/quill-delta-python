@@ -351,7 +351,14 @@ def list_block(block, attrs):
     previous = block.getprevious()
     list_type = attrs['list']
     list_tag = LIST_TYPES.get(list_type, 'ol')
-    if previous is not None and previous.tag == list_tag:
+
+    if previous is not None:
+        checked_continues = 'data-checked' in previous.attrib and attrs.get('list') in ['checked', 'unchecked']
+        bullet_continues = 'data-checked' not in previous.attrib and attrs.get('list') == 'bullet'
+
+    if previous is not None and previous.tag == list_tag and (
+            list_tag == 'ol' or checked_continues or bullet_continues
+    ):
         list_el = previous
     else:
         list_el = sub_element(block.getparent(), list_tag)
