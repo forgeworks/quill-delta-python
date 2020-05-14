@@ -21,6 +21,7 @@ CLASSES = {
 CODE_BLOCK_CLASS = 'syntax'
 VIDEO_EMBED_CLASS = 'video-embed'
 PODCAST_EMBED_CLASS = 'podcast-embed'
+TWITTER_EMBED_CLASS = 'twitter-embed'
 INDENT_CLASS = 'indent-%d'
 DIRECTION_CLASS = 'direction-%s'
 ALIGN_CLASS = 'align-%s'
@@ -341,6 +342,39 @@ def podcast_embed_check(op):
     insert = op.get('insert')
     return isinstance(insert, dict) and insert.get('podcast_embed')
 
+
+@format
+def twitter_embed(root, op):
+    insert = op.get('insert')
+    twitter = insert.get('twitter_embed', {})
+    figure = sub_element(root, 'figure')
+    figure.attrib.update({
+        'class': TWITTER_EMBED_CLASS
+    })
+    source = twitter.get('src', '')
+
+    if 'twitter' in source:
+        tweet_id, username = source.split(':')[1].split('-')
+        blockquote = sub_element(figure, 'blockquote')
+        blockquote.attrib.update({
+            'class': 'twitter-tweet'
+        })
+        anchor = sub_element(blockquote, 'a')
+        anchor.attrib.update({
+            'href': f'https://twitter.com/{username}/status/{tweet_id}?ref_src=twsrc%5Etfw'
+        })
+        script = sub_element(figure, 'script')
+        script.attrib.update({
+            'src': 'https://platform.twitter.com/widgets.js'
+        })
+    return figure
+
+
+@twitter_embed.check
+def twitter_embed_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('twitter_embed')
+    
 
 ### Block Formats ###
 LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul', 'checked': 'ul', 'unchecked': 'ul'}
