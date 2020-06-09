@@ -180,6 +180,15 @@ def color(root, op):
     return styled(root, {'color': op['attributes']['color']})
 
 @format
+def size(root, op):
+    return styled(root, {'font-size': op['attributes']['size']})
+
+@format
+def font(root, op):
+    return styled(root, {'font-family': op['attributes']['font']})
+
+
+@format
 def link(root, op):
     if type(op['attributes']['link']) is dict:
         el = sub_element(root, 'a')
