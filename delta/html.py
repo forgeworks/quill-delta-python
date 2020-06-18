@@ -6,6 +6,11 @@ from lxml.html import HtmlElement, Element
 from lxml import html
 from cssutils import parseStyle
 
+# This handles the error caused by css2.1 validator on rem units
+from cssutils import profile
+profile._MACROS['positivelength'] = r'0|{positivenum}(em|ex|px|in|cm|mm|pt|pc|rem)'
+profile._resetProperties()
+
 CLASSES = {
     'font': {
         'serif': 'ql-font-serif',
