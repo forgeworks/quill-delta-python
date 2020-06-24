@@ -272,9 +272,6 @@ class Delta(object):
             start = op.length(self_op) - iter.peek_length()
             if isinstance(self_op.get('insert'), str):
                 index = self_op['insert'][start:].find(newline)
-            elif isinstance(self_op.get('insert'), dict) and self_op['insert'].get('image', {}).get('src'):
-                line.push(iter.next())
-                index = 0
             else:
                 index = -1
 
