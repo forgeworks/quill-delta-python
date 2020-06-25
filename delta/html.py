@@ -466,15 +466,15 @@ def append_op(root, op):
 def append_line(root, delta, attrs, index):
     block = None
     for op in delta.ops:
-        if isinstance(delta.ops[0].get('insert'), dict) and 'image' in op['insert']:
+        if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
             append_op(root, op)
         else:
-            if not block:
+            if block is None:
                 block = sub_element(root, 'p')
 
             append_op(block, op)
 
-    if not block:
+    if block is None:
         block = root
 
     if len(block) <= 0 and not block.text:
