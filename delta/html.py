@@ -6,6 +6,11 @@ from lxml.html import HtmlElement, Element
 from lxml import html
 from cssutils import parseStyle
 
+# This handles the error caused by css2.1 validator on rem units
+from cssutils import profile
+profile._MACROS['positivelength'] = r'0|{positivenum}(em|ex|px|in|cm|mm|pt|pc|rem)'
+profile._resetProperties()
+
 CLASSES = {
     'font': {
         'serif': 'ql-font-serif',
@@ -20,6 +25,8 @@ CLASSES = {
 
 CODE_BLOCK_CLASS = 'syntax'
 VIDEO_EMBED_CLASS = 'video-embed'
+PODCAST_EMBED_CLASS = 'podcast-embed'
+TWITTER_EMBED_CLASS = 'twitter-embed'
 INDENT_CLASS = 'indent-%d'
 DIRECTION_CLASS = 'direction-%s'
 ALIGN_CLASS = 'align-%s'
@@ -195,6 +202,15 @@ def color(root, op):
 
 
 @format
+def size(root, op):
+    return styled(root, {'font-size': op['attributes']['size']})
+
+@format
+def font(root, op):
+    return styled(root, {'font-family': op['attributes']['font']})
+
+
+@format
 def link(root, op):
     if type(op['attributes']['link']) is dict:
         el = sub_element(root, 'a')
@@ -234,10 +250,25 @@ def classes_check(op):
 
 @format
 def image(root, op):
+    image = op['insert']['image']
     figure = sub_element(root, 'figure')
-    el = sub_element(figure, 'img')
-    el.attrib['src'] = op['insert']['image'].get('src')
-    el.attrib['alt'] = op['insert']['image'].get('alt')
+
+    link = image.get('link')
+    if link:
+        a = sub_element(figure, 'a')
+        img = sub_element(a, 'img')
+
+        a.attrib['href'] = link.get('url')
+        if link.get('openNewTab'):
+            a.attrib['target'] = '_blank'
+            a.attrib['rel'] = 'noopener noreferrer'
+
+    else:
+        img = sub_element(figure, 'img')
+
+    img.attrib['src'] = image.get('src')
+    img.attrib['alt'] = image.get('alt')
+
     return figure
 
 
@@ -254,6 +285,17 @@ def amp_image(root, op):
     el.attrib['src'] = op['insert']['image'].get('src')
     el.attrib['alt'] = op['insert']['image'].get('alt')
     return figure
+
+
+@format
+def divider(root, op):
+    return sub_element(root, 'hr')
+
+
+@divider.check
+def divider_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and isinstance(insert.get('divider'), bool)
 
 
 @format
@@ -298,6 +340,88 @@ def video_embed_check(op):
     return isinstance(insert, dict) and insert.get('video_embed')
 
 
+@format
+def podcast_embed(root, op):
+    insert = op.get('insert')
+    podcast = insert.get('podcast_embed', {})
+    figure = sub_element(root, 'figure')
+    figure.attrib.update({
+        'class': PODCAST_EMBED_CLASS
+    })
+    source = podcast.get('src', '')
+    if 'transistor.fm' in source:
+        iframe = sub_element(figure, 'iframe')
+        iframe.attrib.update({
+            'frameborder': '0',
+            'style': 'width:100%;height: 200px',
+            'scrolling': 'no',
+            'seamless': 'true',
+            'src': source,
+        })
+    elif 'buzzsprout.com' in source:
+        accId, podId = source.split('/')[-1].split('-')
+        div = sub_element(figure, 'div')
+        div.attrib.update({
+            'id': f'buzzsprout-player-{podId}',
+        })
+        script = sub_element(figure, 'script')
+        script.attrib.update({
+            'async': 'true',
+            'src': f'https://www.buzzsprout.com/{accId}/{podId}.js?container_id=buzzsprout-player-{podId}&player=small',
+            'type': 'text/javascript',
+            'charset': 'utf-8'
+        })
+    elif 'soundcloud.com' in source:
+        iframe = sub_element(figure, 'iframe')
+        iframe.attrib.update({
+            'frameborder': '0',
+            'style': 'width:100%;',
+            'scrolling': 'no',
+            'allow': 'autoplay',
+            'src': f'{source}&color=%23ff5500&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true&visual=true',
+        })
+    return figure
+
+
+@podcast_embed.check
+def podcast_embed_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('podcast_embed')
+
+
+@format
+def twitter_embed(root, op):
+    insert = op.get('insert')
+    twitter = insert.get('twitter_embed', {})
+    figure = sub_element(root, 'figure')
+    figure.attrib.update({
+        'class': TWITTER_EMBED_CLASS
+    })
+    source = twitter.get('src', '')
+
+    if 'twitter' in source:
+        tweet_id, username = source.split(':')[1].split('-')
+        blockquote = sub_element(figure, 'blockquote')
+        blockquote.attrib.update({
+            'class': 'twitter-tweet'
+        })
+        anchor = sub_element(blockquote, 'a')
+        anchor.attrib.update({
+            'href': f'https://twitter.com/{username}/status/{tweet_id}?ref_src=twsrc%5Etfw'
+        })
+        script = sub_element(figure, 'script')
+        script.attrib.update({
+            'src': 'https://platform.twitter.com/widgets.js'
+        })
+    return figure
+
+
+@twitter_embed.check
+def twitter_embed_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('twitter_embed')
+    
+
 ### Block Formats ###
 LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul', 'checked': 'ul', 'unchecked': 'ul'}
 
@@ -308,7 +432,14 @@ def list_block(block, attrs):
     previous = block.getprevious()
     list_type = attrs['list']
     list_tag = LIST_TYPES.get(list_type, 'ol')
-    if previous is not None and previous.tag == list_tag:
+
+    if previous is not None:
+        checked_continues = 'data-checked' in previous.attrib and attrs.get('list') in ['checked', 'unchecked']
+        bullet_continues = 'data-checked' not in previous.attrib and attrs.get('list') == 'bullet'
+
+    if previous is not None and previous.tag == list_tag and (
+            list_tag == 'ol' or checked_continues or bullet_continues
+    ):
         list_el = previous
     else:
         list_el = sub_element(block.getparent(), list_tag)
@@ -371,10 +502,18 @@ def append_op(root, op):
 
 
 def append_line(root, delta, attrs, index):
-    block = sub_element(root, 'p')
-    
+    block = None
     for op in delta.ops:
-        append_op(block, op)
+        if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
+            append_op(root, op)
+        else:
+            if block is None:
+                block = sub_element(root, 'p')
+
+            append_op(block, op)
+
+    if block is None:
+        block = root
 
     if len(block) <= 0 and not block.text:
         br = sub_element(block, 'br')

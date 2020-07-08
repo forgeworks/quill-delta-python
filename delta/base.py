@@ -274,7 +274,7 @@ class Delta(object):
                 index = self_op['insert'][start:].find(newline)
             else:
                 index = -1
-            
+
             if index < 0:
                 line.push(iter.next())
             elif index > 0:
