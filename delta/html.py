@@ -287,6 +287,12 @@ def amp_image(root, op):
     return figure
 
 
+@amp_image.check
+def amp_image_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('amp_image')
+
+
 @format
 def divider(root, op):
     return sub_element(root, 'hr')
@@ -338,6 +344,17 @@ def video_embed(root, op):
 def video_embed_check(op):
     insert = op.get('insert')
     return isinstance(insert, dict) and insert.get('video_embed')
+
+
+@format
+def amp_video_embed(root, op):
+    pass
+
+
+@amp_video_embed.check
+def amp_video_embed_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('amp_video_embed')
 
 
 @format
