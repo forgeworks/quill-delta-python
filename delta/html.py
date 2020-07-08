@@ -34,6 +34,7 @@ def sub_element(root, *a, **kwargs):
     root.append(e)
     return e
 
+
 def styled(element, styles):
     if element.tag != 'span':
         element = sub_element(element, 'span')
@@ -47,10 +48,12 @@ def styled(element, styles):
         pass
     return element
 
+
 def classed(element, *classes):
     if element.tag != 'span':
         element = sub_element(element, 'span')
     return add_class(element, *classes)
+
 
 def add_class(element, *classes):
     current = element.attrib.get('class')
@@ -96,14 +99,6 @@ class Format:
             return True
         return False
 
-def format(fn, name=None, cls=Format):
-    if isinstance(fn, str):
-        name = fn
-        def wrapper(fn):
-            return format(fn, name, cls)
-        return wrapper
-    return cls(fn, name or fn.__name__)
-
 
 class BlockFormat(Format):
     """
@@ -127,39 +122,58 @@ class BlockFormat(Format):
         return '<BlockFormat %s>' % self.name
 
 
+def format(fn, name=None, cls=Format):
+    if isinstance(fn, str):
+        name = fn
+
+        def wrapper(fn):
+            return format(fn, name, cls)
+
+        return wrapper
+    return cls(fn, name or fn.__name__)
+
+
 ### Formats ###
 @format
 def highlight(root, op):
     return sub_element(root, 'mark')
+
 
 @format
 def header(root, op):
     root.tag = 'h%s' % op['attributes']['header']
     return root
 
+
 @format
 def strong(root, op):
     return sub_element(root, 'strong')
+
 
 @format
 def bold(root, op):
     return strong.fn(root, op)
 
+
 @format
 def em(root, op):
     return sub_element(root, 'em')
+
 
 @format
 def italic(root, op):
     return em.fn(root, 'em')
 
+
 @format
 def underline(root, op):
     return sub_element(root, 'u')
 
+
 @format
 def strike(root, op):
     return sub_element(root, 's')
+
 
 @format
 def script(root, op):
@@ -169,13 +183,16 @@ def script(root, op):
         return sub_element(root, 'sub')
     return root
 
+
 @format
 def background(root, op):
     return styled(root, {'background-color': op['attributes']['background']})
 
+
 @format
 def color(root, op):
     return styled(root, {'color': op['attributes']['color']})
+
 
 @format
 def link(root, op):
@@ -190,12 +207,14 @@ def link(root, op):
         el.attrib['href'] = op['attributes']['link']
     return el
 
+
 @format
 def indent(root, op):
     level = op['attributes']['indent']
     if level >= 1 and level <= 8:
         return add_class(root, INDENT_CLASS % level)
     return root
+
 
 @format
 def classes(root, op):
@@ -207,9 +226,11 @@ def classes(root, op):
                 root = classed(root, options[value])
     return root
 
+
 @classes.check
 def classes_check(op):
     return True
+
 
 @format
 def image(root, op):
@@ -219,10 +240,21 @@ def image(root, op):
     el.attrib['alt'] = op['insert']['image'].get('alt')
     return figure
 
+
 @image.check
 def image_check(op):
     insert = op.get('insert')
     return isinstance(insert, dict) and insert.get('image')
+
+
+@format
+def amp_image(root, op):
+    figure = sub_element(root, 'figure')
+    el = sub_element(figure, 'amp-img')
+    el.attrib['src'] = op['insert']['image'].get('src')
+    el.attrib['alt'] = op['insert']['image'].get('alt')
+    return figure
+
 
 @format
 def video_embed(root, op):
@@ -259,6 +291,7 @@ def video_embed(root, op):
 
     return figure
 
+
 @video_embed.check
 def video_embed_check(op):
     insert = op.get('insert')
@@ -267,6 +300,7 @@ def video_embed_check(op):
 
 ### Block Formats ###
 LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul', 'checked': 'ul', 'unchecked': 'ul'}
+
 
 @format('list', cls=BlockFormat)
 def list_block(block, attrs):
@@ -283,23 +317,28 @@ def list_block(block, attrs):
     list_el.append(block)
     return block
 
+
 @format('direction', cls=BlockFormat)
 def list_block(block, attrs):
     return add_class(block, DIRECTION_CLASS % attrs['direction'])
 
+
 @format('align', cls=BlockFormat)
 def list_block(block, attrs):
     return add_class(block, ALIGN_CLASS % attrs['align'])
+
 
 @format('header', cls=BlockFormat)
 def header_block(block, attrs):
     block.tag = 'h%s' % attrs['header']
     return block
 
+
 @format('blockquote', cls=BlockFormat)
 def blockquote(block, attrs):
     block.tag = 'blockquote'
     return block
+
 
 @format('code-block', cls=BlockFormat)
 def code_block(root, op):
