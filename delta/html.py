@@ -248,15 +248,14 @@ def classes_check(op):
     return True
 
 
-@format
-def image(root, op):
-    image = op['insert']['image']
+def base_image(root, op, tag, key):
+    img = op['insert'].get(key)
     figure = sub_element(root, 'figure')
 
-    link = image.get('link')
+    link = img.get('link')
     if link:
         a = sub_element(figure, 'a')
-        img = sub_element(a, 'img')
+        el = sub_element(a, tag)
 
         a.attrib['href'] = link.get('url')
         if link.get('openNewTab'):
@@ -264,12 +263,22 @@ def image(root, op):
             a.attrib['rel'] = 'noopener noreferrer'
 
     else:
-        img = sub_element(figure, 'img')
+        el = sub_element(figure, tag)
 
-    img.attrib['src'] = image.get('src')
-    img.attrib['alt'] = image.get('alt')
+    el.attrib['src'] = img.get('src')
+    if img.get('alt'):
+        el.attrib['alt'] = img.get('alt')
+    if img.get('width'):
+        el.attrib['width'] = img.get('width')
+    if img.get('height'):
+        el.attrib['height'] = img.get('height')
 
     return figure
+
+
+@format
+def image(root, op):
+    return base_image(root, op, 'img', 'image')
 
 
 @image.check
@@ -280,11 +289,7 @@ def image_check(op):
 
 @format
 def amp_image(root, op):
-    figure = sub_element(root, 'figure')
-    el = sub_element(figure, 'amp-img')
-    el.attrib['src'] = op['insert']['image'].get('src')
-    el.attrib['alt'] = op['insert']['image'].get('alt')
-    return figure
+    return base_image(root, op, 'amp-img', 'amp_image')
 
 
 @amp_image.check
