@@ -252,13 +252,13 @@ def base_image(root, op, tag, key):
     img = op['insert'].get(key)
     figure = sub_element(root, 'figure')
 
-    link = img.get('link')
-    if link:
+    href = img.get('link')
+    if href:
         a = sub_element(figure, 'a')
         el = sub_element(a, tag)
 
-        a.attrib['href'] = link.get('url')
-        if link.get('openNewTab'):
+        a.attrib['href'] = href.get('url')
+        if href.get('openNewTab'):
             a.attrib['target'] = '_blank'
             a.attrib['rel'] = 'noopener noreferrer'
 
@@ -266,13 +266,11 @@ def base_image(root, op, tag, key):
         el = sub_element(figure, tag)
 
     el.attrib['src'] = img.get('src')
-    if img.get('alt'):
-        el.attrib['alt'] = img.get('alt')
+    el.attrib['alt'] = img.get('alt') or ''
     if img.get('width'):
-        el.attrib['width'] = img.get('width')
+        el.attrib['width'] = str(img['width'])
     if img.get('height'):
-        el.attrib['height'] = img.get('height')
-
+        el.attrib['height'] = str(img['height'])
     return figure
 
 
