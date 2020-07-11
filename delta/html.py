@@ -271,6 +271,8 @@ def base_image(root, op, tag, key):
         el.attrib['width'] = str(img['width'])
     if img.get('height'):
         el.attrib['height'] = str(img['height'])
+    if img.get('layout'):
+        el.attrib['layout'] = img['layout']
     return figure
 
 
