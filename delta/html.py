@@ -216,8 +216,8 @@ def link(root, op):
         el = sub_element(root, 'a')
         allowed_attrs = ['href', 'target']
         for key in allowed_attrs:
-            if key in op['attributes']['link'] and op['attributes']['link'][key]:
-                value = op['attributes']['link'][key]
+            value = op['attributes']['link'].get(key)
+            if value or type(value) is int:
                 el.attrib[key] = value
                 if key == 'target' and value == '_blank':
                     el.attrib['rel'] = 'noopener'
