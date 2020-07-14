@@ -214,10 +214,13 @@ def font(root, op):
 def link(root, op):
     if type(op['attributes']['link']) is dict:
         el = sub_element(root, 'a')
-        attrs = ['href', 'target', 'rel', 'nedia', 'type']
-        for key in attrs:
-            if key in op['attributes']['link']:
-                el.attrib[key] = op['attributes']['link'][key]
+        allowed_attrs = ['href', 'target']
+        for key in allowed_attrs:
+            if key in op['attributes']['link'] and op['attributes']['link'][key]:
+                value = op['attributes']['link'][key]
+                el.attrib[key] = value
+                if key == 'target' and value == '_blank':
+                    el.attrib['rel'] = 'noopener'
     else:
         el = sub_element(root, 'a')
         el.attrib['href'] = op['attributes']['link']
