@@ -500,8 +500,7 @@ def blockquote(block, attrs):
 def code_block(root, op):
     root.tag = 'pre'
     root.attrib.update({
-        'class': CODE_BLOCK_CLASS,
-        'spellcheck': 'false'
+        'class': CODE_BLOCK_CLASS
     })
     return root
 
