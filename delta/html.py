@@ -546,17 +546,39 @@ def append_line(root, delta, attrs, index):
         root = fmt(block, attrs)
 
 
-def render(delta, method='html', pretty=False):
+def append_comment(root, delta):
+    block = sub_element(root, 'comment')
+    for op in delta.ops:
+        text = op.get('insert')
+        if block.text:
+            block.text += text
+        else:
+            block.text = text
+
+
+def render(delta, method='html', pretty=False, restrict_header=None):
     if not isinstance(delta, Delta):
         delta = Delta(delta)
 
+    wcount = 0
+    restrict_header_inserted = False
     root = html.fragment_fromstring('<template></template>')
     for line, attrs, index in delta.iter_lines():
         append_line(root, line, attrs, index)
+        wcount = sum(map(lambda op: len((op.get('insert') or '').split(' ')), line.ops), wcount)
+        if restrict_header and wcount > 100 and not restrict_header_inserted:
+            restrict_header_inserted = True
+            append_comment(root, Delta([{'insert': restrict_header}]))
+
+    if restrict_header:
+        append_comment(root, Delta([{'insert': restrict_header}]))
 
     result = ''.join(
-        html.tostring(child, method=method, with_tail=True, encoding='unicode', pretty_print=pretty) 
-        for child in root)
+        html.tostring(
+            child, method=method, with_tail=True, encoding='unicode', pretty_print=pretty
+        ).replace('<comment>', '<!--').replace('</comment>', '-->')
+        for child in root
+    )
 
     # SGM - Hack to combine <pre> tags together
     # TODO - Fix this at the rendering level
