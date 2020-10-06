@@ -174,7 +174,14 @@ def color(root, op):
 @format
 def link(root, op):
     el = sub_element(root, 'a')
-    el.attrib['href'] = op['attributes']['link']
+    link = op['attributes']['link']
+
+    if isinstance(link, str):
+        el.attrib['href'] = op['attributes']['link']
+    elif isinstance(link, dict):
+        for attrname, attrvalue in link.items():
+            el.attrib[attrname] = attrvalue
+
     return el
 
 @format
