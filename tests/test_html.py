@@ -141,6 +141,10 @@ def test_header():
         {"insert":"\n", "attributes": {"header": 2}}
     ]
     source = '<h2>Quill</h2>'
+
+    ops = [{"insert": "Hello"}, {"attributes": {"header": 2}}]
+
+    source = '<h2>Hello</h2>'
     assert html.render(ops) == source
 
 def test_blockquote():
@@ -162,30 +166,31 @@ def test_codeblock():
 def test_lists():
     ops = [
         {"insert": "item 1"},
-        {"insert": "\n", "attributes": {"list":"ordered"}},
+        {"insert": "\n", "attributes": {"list":"ordered", "indent": 1}},
         {"insert": "item 2"},
         {"insert": "\n", "attributes": {"list": "ordered"}},
         {"insert":"item 3"},
         {"insert": "\n", "attributes": {"list": "ordered"}}
     ]
-    source = "<ol><li>item 1</li><li>item 2</li><li>item 3</li></ol>"
+    source = "<ol><li class=\"ql-indent-1\">item 1</li><li>item 2</li><li>item 3</li></ol>"
     assert html.render(ops) == source
 
     ops = [
         {"insert": "item 1"},
-        {"insert": "\n", "attributes": {"list":"bullet"}},
+        {"insert": "\n", "attributes": {"list":"bullet", "indent": 2}},
         {"insert": "item 2"},
         {"insert": "\n", "attributes": {"list": "bullet"}},
         {"insert":"item 3"},
         {"insert": "\n", "attributes": {"list": "bullet"}}
     ]
-    source = "<ul><li>item 1</li><li>item 2</li><li>item 3</li></ul>"
+    source = "<ul><li class=\"ql-indent-2\">item 1</li><li>item 2</li><li>item 3</li></ul>"
     assert html.render(ops) == source
 
 def test_indent():
     for i in range(1, 9):
         ops = [
-            {"insert": "quill", "attributes": {"indent": i}}
+            {"insert": "quill"},
+            {"attributes":{"indent":i},"insert":"\n"}
         ]
         source = '<p class="ql-indent-%d">quill</p>' % i
         assert html.render(ops) == source

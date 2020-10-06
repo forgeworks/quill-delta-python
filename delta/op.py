@@ -88,8 +88,6 @@ def type_of(op):
 
 
 
-
-
 class Iterator(object):
     """
     An iterator that enables itself to break off operations

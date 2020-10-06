@@ -67,11 +67,14 @@ class Format:
         self.name = name
         self.fn = fn
         self.check_fn = None
+    
+    def __repr__(self):
+        return "<%s %r>" % (self.__class__.__name__, self.name)
 
     def __call__(self, root, op):
         if self._check(op):
             try:
-                el =  self.fn(root, op)
+                el = self.fn(root, op)
             except Exception as e:
                 logger.error("Rendering format failed: %r", e)
                 el = ""
@@ -175,13 +178,6 @@ def link(root, op):
     return el
 
 @format
-def indent(root, op):
-    level = op['attributes']['indent']
-    if level >= 1 and level <= 8:
-        return add_class(root, INDENT_CLASS % level)
-    return root
-
-@format
 def classes(root, op):
     attrs = op.get('attributes', None)
     if attrs:
@@ -233,6 +229,13 @@ def video_check(op):
 ### Block Formats ###
 LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul'}
 
+@format('indent', cls=BlockFormat)
+def indent(block, attrs):
+    level = attrs['indent']
+    if level >= 1 and level <= 8:
+        return add_class(block, INDENT_CLASS % level)
+    return block
+
 @format('list', cls=BlockFormat)
 def list_block(block, attrs):
     block.tag = 'li'
@@ -275,6 +278,8 @@ def code_block(root, op):
 
 ### Processors ###
 def append_op(root, op):
+    print("append_op", root, op)
+
     for fmt in Format.all:
         root = fmt(root, op)
 
