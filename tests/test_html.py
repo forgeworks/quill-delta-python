@@ -36,6 +36,14 @@ def test_video():
     source = '<iframe class="ql-video" frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/NAb9V08zcBE"></iframe><p><br></p>'
     assert html.render(ops) == source
 
+def test_video_alignment():
+    ops = [
+        {"insert":{"video":"https://www.youtube.com/embed/NAb9V08zcBE"}, "attributes": {"align": "right"}},
+        {"insert": "\n"}
+    ]
+    source = '<iframe class="ql-align-right ql-video" frameborder="0" allowfullscreen="true" src="https://www.youtube.com/embed/NAb9V08zcBE"></iframe><p><br></p>'
+    assert html.render(ops) == source
+
 def test_colors():
     ops = [
         {"insert": "quill", "attributes": {"background": "#000000"}}
