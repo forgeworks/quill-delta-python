@@ -216,7 +216,7 @@ def image_check(op):
 
 @format
 def video(root, op):
-    insert = op.get('insert')
+    attributes = op.get('attributes', {})
     iframe = root.makeelement('iframe')
     iframe.attrib.update({
         'class': VIDEO_IFRAME_CLASS,
@@ -224,6 +224,8 @@ def video(root, op):
         'allowfullscreen': 'true',
         'src': op['insert']['video']
     })
+    if isinstance(attributes, dict) and attributes.get('align', None):
+        align_block(iframe, attributes)
     root.addprevious(iframe)
     return iframe
 
@@ -260,7 +262,7 @@ def list_block(block, attrs):
     return add_class(block, DIRECTION_CLASS % attrs['direction'])
 
 @format('align', cls=BlockFormat)
-def list_block(block, attrs):
+def align_block(block, attrs):
     return add_class(block, ALIGN_CLASS % attrs['align'])
 
 @format('header', cls=BlockFormat)
