@@ -285,8 +285,6 @@ def code_block(root, op):
 
 ### Processors ###
 def append_op(root, op):
-    print("append_op", root, op)
-
     for fmt in Format.all:
         root = fmt(root, op)
 
