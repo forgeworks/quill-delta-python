@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "quill-delta"
-version = "1.0.2"
+version = "1.0.2a"
 description = "Python port of the quill.js delta library that enables operational transformation with aditional functionality for rendering html"
 authors = ["Brantley Harris <brantley@forge.works>"]
 license = "MIT"
