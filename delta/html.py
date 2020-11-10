@@ -283,6 +283,42 @@ def base_image(root, op, tag, key):
 def image(root, op):
     return base_image(root, op, 'img', 'image')
 
+def base_video(root, op, tag, key):
+    vid = op['insert'].get(key)
+    container = sub_element(root, 'div')
+
+    href = vid.get('link')
+    if href:
+        a = sub_element(container, 'a')
+        el = sub_element(a, tag)
+
+        a.attrib['href'] = href.get('url')
+        if href.get('openNewTab'):
+            a.attrib['target'] = '_blank'
+            a.attrib['rel'] = 'noopener noreferrer'
+
+    else:
+        el = sub_element(container, tag)
+
+    el.attrib['src'] = vid.get('src')
+    el.attrib['alt'] = vid.get('alt') or ''
+    if vid.get('autoplay'):
+        el.attrib['autoplay'] = str(vid['autoplay'])
+    if vid.get('controls'):
+        el.attrib['controls'] = str(vid['controls'])
+    if vid.get('loop'):
+        el.attrib['loop'] = str(vid['loop'])
+    return container
+
+@format
+def video(root, op):
+    return base_video(root, op, 'video', 'video')
+
+
+@video.check
+def video_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('video')
 
 @image.check
 def image_check(op):
