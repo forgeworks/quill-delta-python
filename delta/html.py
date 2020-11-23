@@ -37,9 +37,13 @@ def styled(element, styles):
     if element.tag != 'span':
         element = sub_element(element, 'span')
     declare = parseStyle(element.attrib.get('style', ''))
-    for k, v in styles.items():
-        declare.setProperty(k, v)
-    element.attrib['style'] = declare.getCssText(' ')
+    try:
+        for k, v in styles.items():
+            declare.setProperty(k, v)
+        element.attrib['style'] = declare.getCssText(' ')
+    except:
+        # Ignore invalid css attributes
+        pass
     return element
 
 def classed(element, *classes):

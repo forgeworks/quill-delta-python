@@ -59,6 +59,21 @@ def test_colors():
     source = '<p><span style="background-color: #000; color: #FFF">quill</span></p>'
     assert html.render(ops) == source
 
+def test_unsupported_style_attribute():
+    ops = [
+            {"insert": "quill", "attributes": {"color": "var(--some-color)", "background": "#000000"}}
+    ]
+
+    source = '<p><span style="background-color: #000">quill</span></p>'
+    assert html.render(ops) == source
+
+    ops = [
+        {"insert": "quill", "attributes": {"background": "#000000", "color": "#FFFFFF"}}
+    ]
+
+    source = '<p><span style="background-color: #000; color: #FFF">quill</span></p>'
+    assert html.render(ops) == source
+
 def test_classes():
     ops = [
         {"insert":"Quill", "attributes": {"font": "monospace", "size": "huge"}}
