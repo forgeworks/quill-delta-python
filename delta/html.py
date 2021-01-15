@@ -543,8 +543,6 @@ def code_block(root, op):
 
 @format('id-attribute', cls=BlockFormat)
 def id_attribute(root, op):
-    print('root', root)
-    print('op', op)
     root.attrib.update({
         'id': op['id-attribute']
     })
