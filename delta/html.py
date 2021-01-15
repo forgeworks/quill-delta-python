@@ -36,8 +36,11 @@ logger = logging.getLogger('quill')
 
 
 ### Helpers ###
-def strip_control_characters(text):
-    return re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', text)
+def strip_control_bytes(text):
+    try:
+        return re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', text)
+    except:
+        return text
 
 
 def sub_element(root, *a, **kwargs):
@@ -605,7 +608,7 @@ def render(delta, method='html', pretty=False, restrict_header=None):
     root = html.fragment_fromstring('<template></template>')
     for line, attrs, index in delta.iter_lines():
         append_line(root, line, attrs, index)
-        wcount = sum(map(lambda op: len(((op.get('insert') if isinstance(op.get('insert'), str) else '') or '').split(' ')), line.ops), wcount)
+        wcount = sum(map(lambda op: len(((strip_control_bytes(op.get('insert')) if isinstance(op.get('insert'), str) else '') or '').split(' ')), line.ops), wcount)
         if restrict_header and wcount > 100 and not restrict_header_inserted:
             restrict_header_inserted = True
             append_comment(root, Delta([{'insert': restrict_header}]))
