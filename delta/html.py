@@ -597,8 +597,6 @@ def append_comment(root, delta):
 
 
 def render(delta, method='html', pretty=False, restrict_header=None):
-    delta = strip_control_characters(delta)
-
     if not isinstance(delta, Delta):
         delta = Delta(delta)
 
