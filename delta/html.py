@@ -36,6 +36,10 @@ logger = logging.getLogger('quill')
 
 
 ### Helpers ###
+def strip_control_characters(text):
+    return re.sub(u'[^\u0020-\uD7FF\u0009\u000A\u000D\uE000-\uFFFD\U00010000-\U0010FFFF]+', '', text)
+
+
 def sub_element(root, *a, **kwargs):
     e = root.makeelement(*a, **kwargs)
     root.append(e)
@@ -593,6 +597,8 @@ def append_comment(root, delta):
 
 
 def render(delta, method='html', pretty=False, restrict_header=None):
+    delta = strip_control_characters(delta)
+
     if not isinstance(delta, Delta):
         delta = Delta(delta)
 
