@@ -95,7 +95,7 @@ class Format:
             try:
                 el =  self.fn(root, op)
             except Exception as e:
-                logger.error('Rendering format failed: %r', e)
+                logger.exception('Rendering format failed: %r', e)
                 el = ''
             return el
         return root
