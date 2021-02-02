@@ -548,6 +548,13 @@ def code_block(root, op):
     return root
 
 
+@format('id-attribute', cls=BlockFormat)
+def id_attribute(root, op):
+    root.attrib.update({
+        'id': op['id-attribute']
+    })
+
+
 ### Processors ###
 def append_op(root, op):
     for fmt in Format.all:
