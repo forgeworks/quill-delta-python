@@ -571,7 +571,9 @@ def append_op(root, op):
 def append_line(root, delta, attrs, index):
     block = None
     if attrs.get('header') == 2 and not attrs.get('id-attribute'):
-        attrs['id-attribute'] = re.sub('\s+', '_',re.sub('[^a-zA-Z0-9\s]', '', delta.document())).lower()
+        attrs['id-attribute'] = re.sub(
+            '\s+', '_',re.sub('^[^a-zA-Z\s]*|[^a-zA-Z0-9\s]', '', delta.document())
+        ).lower()
     for op in delta.ops:
         if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
             append_op(root, op)
