@@ -95,7 +95,7 @@ class Format:
             try:
                 el =  self.fn(root, op)
             except Exception as e:
-                logger.error('Rendering format failed: %r', e)
+                logger.exception('Rendering format failed: %r', e)
                 el = ''
             return el
         return root
@@ -546,6 +546,13 @@ def code_block(root, op):
         'class': CODE_BLOCK_CLASS
     })
     return root
+
+
+@format('id-attribute', cls=BlockFormat)
+def id_attribute(root, op):
+    root.attrib.update({
+        'id': op['id-attribute']
+    })
 
 
 ### Processors ###
