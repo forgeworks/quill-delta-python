@@ -620,7 +620,7 @@ def render(delta, method='html', pretty=False, restrict_header=None):
             restrict_header_inserted = True
             append_comment(root, Delta([{'insert': restrict_header}]))
 
-    if restrict_header:
+    if restrict_header and restrict_header_inserted:
         append_comment(root, Delta([{'insert': restrict_header}]))
 
     result = ''.join(
