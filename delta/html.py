@@ -258,6 +258,54 @@ def classes_check(op):
     return True
 
 
+def base_picture(root, op):
+    pic = op['insert'].get('picture')
+    attributes = pic['attributes']
+
+    a = None
+    href = attributes.get('link')
+    if href:
+        a = sub_element(root, 'a')
+        a.attrib['href'] = href.get('url')
+        if href.get('openNewTab'):
+            a.attrib['target'] = '_blank'
+            a.attrib['rel'] = 'noopener noreferrer'
+
+    picture_tag = sub_element(a if a is not None else root, 'picture')
+    raw_sources = pic['sources']
+    for raw_source in raw_sources:
+        source_tag = sub_element(picture_tag, 'source')
+        source_tag.attrib['srcset'] = ', '.join(f'{s["src"]} {s["density"]}x' for s in raw_source['srcset'])
+        source_tag.attrib['type'] = raw_source['type']
+
+        media_query = f'"(max-width: {raw_source["max-width"]}px)"' if raw_source["max-width"] else ''
+        if media_query:
+            source_tag.attrib['media'] = media_query
+
+    img_tag = sub_element(picture_tag, 'img')
+    img_tag.attrib['src'] = raw_sources[-1]['srcset'][0]['src'] if raw_sources else None
+    img_tag.attrib['alt'] = attributes.get('alt') or ''
+    if attributes.get('width'):
+        img_tag.attrib['width'] = str(attributes['width'])
+    if attributes.get('height'):
+        img_tag.attrib['height'] = str(attributes['height'])
+    if attributes.get('layout'):
+        img_tag.attrib['layout'] = attributes['layout']
+
+    return a if a is not None else picture_tag
+
+
+@format
+def picture(root, op):
+    return base_picture(root, op)
+
+
+@picture.check
+def picture_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('picture')
+
+
 def base_image(root, op, tag, key):
     img = op['insert'].get(key)
     figure = sub_element(root, 'figure')
