@@ -272,6 +272,9 @@ def base_picture(root, op):
             a.attrib['rel'] = 'noopener noreferrer'
 
     picture_tag = sub_element(a if a is not None else root, 'picture')
+    if attributes.get('class'):
+        picture_tag.attrib['class'] = attributes['class']
+
     raw_sources = pic['sources']
     for raw_source in raw_sources:
         source_tag = sub_element(picture_tag, 'source')
@@ -283,7 +286,6 @@ def base_picture(root, op):
             source_tag.attrib['media'] = media_query
 
     img_tag = sub_element(picture_tag, 'img')
-    img_tag.attrib['src'] = raw_sources[-1]['srcset'][0]['src'] if raw_sources else None
     img_tag.attrib['alt'] = attributes.get('alt') or ''
     if attributes.get('width'):
         img_tag.attrib['width'] = str(attributes['width'])
@@ -291,6 +293,16 @@ def base_picture(root, op):
         img_tag.attrib['height'] = str(attributes['height'])
     if attributes.get('layout'):
         img_tag.attrib['layout'] = attributes['layout']
+
+    if raw_sources:
+        base_src = raw_sources[-1]['srcset'][0]
+
+        padding_bottom = base_src['height'] / base_src['width'] * 100
+        picture_tag.attrib['style'] = f'padding-bottom: {padding_bottom}%;'
+
+        img_tag.attrib['src'] = base_src['src']
+    else:
+        img_tag.attrib['src'] = None
 
     return a if a is not None else picture_tag
 
