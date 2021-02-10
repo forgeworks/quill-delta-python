@@ -262,16 +262,18 @@ def base_picture(root, op):
     pic = op['insert'].get('picture')
     attributes = pic['attributes']
 
+    figure_tag = sub_element(root, 'figure')
+
     a = None
     href = attributes.get('link')
     if href:
-        a = sub_element(root, 'a')
+        a = sub_element(figure_tag, 'a')
         a.attrib['href'] = href.get('url')
         if href.get('openNewTab'):
             a.attrib['target'] = '_blank'
             a.attrib['rel'] = 'noopener noreferrer'
 
-    picture_tag = sub_element(a if a is not None else root, 'picture')
+    picture_tag = sub_element(a if a is not None else figure_tag, 'picture')
     if attributes.get('class'):
         picture_tag.attrib['class'] = attributes['class']
 
@@ -304,7 +306,7 @@ def base_picture(root, op):
     else:
         img_tag.attrib['src'] = None
 
-    return a if a is not None else picture_tag
+    return figure_tag
 
 
 @format
