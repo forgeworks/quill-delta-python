@@ -261,6 +261,10 @@ def classes_check(op):
 def base_picture(root, op):
     pic = op['insert'].get('picture')
     attributes = pic['attributes']
+    raw_sources = pic['sources']
+
+    lazy_load = attributes.get('lazy-load')
+    srcset_key = 'data-srcset' if lazy_load else 'srcset'
 
     figure_tag = sub_element(root, 'figure')
 
@@ -276,35 +280,37 @@ def base_picture(root, op):
     picture_tag = sub_element(a if a is not None else figure_tag, 'picture')
     if attributes.get('class'):
         picture_tag.attrib['class'] = attributes['class']
+    if raw_sources:
+        base_src = raw_sources[-1]['srcset'][0]
+        padding_bottom = base_src['height'] / base_src['width'] * 100
+        picture_tag.attrib['style'] = f'padding-bottom: {padding_bottom}%;'
 
-    raw_sources = pic['sources']
     for raw_source in raw_sources:
         source_tag = sub_element(picture_tag, 'source')
-        source_tag.attrib['srcset'] = ', '.join(f'{s["src"]} {s["density"]}x' for s in raw_source['srcset'])
+        source_tag.attrib[srcset_key] = ', '.join(f'{s["src"]} {s["density"]}x' for s in raw_source['srcset'])
         source_tag.attrib['type'] = raw_source['type']
 
         media_query = f'"(max-width: {raw_source["max-width"]}px)"' if raw_source["max-width"] else ''
         if media_query:
             source_tag.attrib['media'] = media_query
 
-    img_tag = sub_element(picture_tag, 'img')
-    img_tag.attrib['alt'] = attributes.get('alt') or ''
-    if attributes.get('width'):
-        img_tag.attrib['width'] = str(attributes['width'])
-    if attributes.get('height'):
-        img_tag.attrib['height'] = str(attributes['height'])
-    if attributes.get('layout'):
-        img_tag.attrib['layout'] = attributes['layout']
+    def _create_img_tag(img_root, src_key):
+        img_tag = sub_element(img_root, 'img')
+        img_tag.attrib[src_key] = raw_sources[-1]['srcset'][0]['src'] if raw_sources else None
+        img_tag.attrib['alt'] = attributes.get('alt') or ''
+        if attributes.get('width'):
+            img_tag.attrib['width'] = str(attributes['width'])
+        if attributes.get('height'):
+            img_tag.attrib['height'] = str(attributes['height'])
+        if attributes.get('layout'):
+            img_tag.attrib['layout'] = attributes['layout']
 
-    if raw_sources:
-        base_src = raw_sources[-1]['srcset'][0]
-
-        padding_bottom = base_src['height'] / base_src['width'] * 100
-        picture_tag.attrib['style'] = f'padding-bottom: {padding_bottom}%;'
-
-        img_tag.attrib['src'] = base_src['src']
+    if lazy_load:
+        _create_img_tag(picture_tag, 'data-src')
+        noscript_tag = sub_element(picture_tag, 'noscript')
+        _create_img_tag(noscript_tag, 'src')
     else:
-        img_tag.attrib['src'] = None
+        _create_img_tag(picture_tag, 'src')
 
     return figure_tag
 
