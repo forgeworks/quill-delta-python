@@ -258,7 +258,28 @@ def classes_check(op):
     return True
 
 
-def base_picture(root, op):
+def create_hyperlink(root, href):
+    if href:
+        a = sub_element(root, 'a')
+        a.attrib['href'] = href.get('url')
+        if href.get('openNewTab'):
+            a.attrib['target'] = '_blank'
+            a.attrib['rel'] = 'noopener noreferrer'
+        return a
+
+
+def set_img_attrs(img_tag, attrs):
+    img_tag.attrib['alt'] = attrs.get('alt') or ''
+    if attrs.get('width'):
+        img_tag.attrib['width'] = str(attrs['width'])
+    if attrs.get('height'):
+        img_tag.attrib['height'] = str(attrs['height'])
+    if attrs.get('layout'):
+        img_tag.attrib['layout'] = attrs['layout']
+
+
+@format
+def picture(root, op):
     pic = op['insert'].get('picture')
     attributes = pic['attributes']
     raw_sources = pic['sources']
@@ -268,14 +289,7 @@ def base_picture(root, op):
 
     figure_tag = sub_element(root, 'figure')
 
-    a = None
-    href = attributes.get('link')
-    if href:
-        a = sub_element(figure_tag, 'a')
-        a.attrib['href'] = href.get('url')
-        if href.get('openNewTab'):
-            a.attrib['target'] = '_blank'
-            a.attrib['rel'] = 'noopener noreferrer'
+    a = create_hyperlink(figure_tag, attributes.get('link'))
 
     picture_tag = sub_element(a if a is not None else figure_tag, 'picture')
     if attributes.get('class'):
@@ -297,13 +311,7 @@ def base_picture(root, op):
     def _create_img_tag(img_root, src_key):
         img_tag = sub_element(img_root, 'img')
         img_tag.attrib[src_key] = raw_sources[-1]['srcset'][0]['src'] if raw_sources else None
-        img_tag.attrib['alt'] = attributes.get('alt') or ''
-        if attributes.get('width'):
-            img_tag.attrib['width'] = str(attributes['width'])
-        if attributes.get('height'):
-            img_tag.attrib['height'] = str(attributes['height'])
-        if attributes.get('layout'):
-            img_tag.attrib['layout'] = attributes['layout']
+        set_img_attrs(img_tag, attributes)
 
     if lazy_load:
         _create_img_tag(picture_tag, 'data-src')
@@ -313,11 +321,6 @@ def base_picture(root, op):
         _create_img_tag(picture_tag, 'src')
 
     return figure_tag
-
-
-@format
-def picture(root, op):
-    return base_picture(root, op)
 
 
 @picture.check
@@ -330,27 +333,11 @@ def base_image(root, op, tag, key):
     img = op['insert'].get(key)
     figure = sub_element(root, 'figure')
 
-    href = img.get('link')
-    if href:
-        a = sub_element(figure, 'a')
-        el = sub_element(a, tag)
+    a = create_hyperlink(figure, img.get('link'))
 
-        a.attrib['href'] = href.get('url')
-        if href.get('openNewTab'):
-            a.attrib['target'] = '_blank'
-            a.attrib['rel'] = 'noopener noreferrer'
-
-    else:
-        el = sub_element(figure, tag)
-
+    el = sub_element(a if a is not None else figure, tag)
     el.attrib['src'] = img.get('src')
-    el.attrib['alt'] = img.get('alt') or ''
-    if img.get('width'):
-        el.attrib['width'] = str(img['width'])
-    if img.get('height'):
-        el.attrib['height'] = str(img['height'])
-    if img.get('layout'):
-        el.attrib['layout'] = img['layout']
+    set_img_attrs(img_tag=el, attrs=img)
     return figure
 
 
