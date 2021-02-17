@@ -499,7 +499,7 @@ def list_block(block, attrs):
     block.tag = 'li'
     previous = block.getprevious()
 
-    while previous.tag == 'comment':
+    while previous and previous.tag == 'comment':
         previous = previous.getprevious()
 
     list_type = attrs['list']
