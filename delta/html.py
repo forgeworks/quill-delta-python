@@ -498,6 +498,10 @@ LIST_TYPES = {'ordered': 'ol', 'bullet': 'ul', 'checked': 'ul', 'unchecked': 'ul
 def list_block(block, attrs):
     block.tag = 'li'
     previous = block.getprevious()
+
+    while previous.tag == 'comment':
+        previous = previous.getprevious()
+
     list_type = attrs['list']
     list_tag = LIST_TYPES.get(list_type, 'ol')
 
