@@ -644,8 +644,9 @@ def append_line(root, delta, attrs, index):
         if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
             append_op(root, op)
         elif isinstance(op.get('insert'), dict) and 'form_embed' in op['insert']:
-            form = html.fragment_fromstring(op['insert']['form_embed'])
-            root.append(form)
+            if type(op['insert']['form_embed']) is str:
+                form = html.fragment_fromstring(op['insert']['form_embed'])
+                root.append(form)
         else:
             if block is None:
                 block = sub_element(root, 'p')
