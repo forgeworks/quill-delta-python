@@ -121,7 +121,7 @@ class Delta(object):
         parts = []
         for op in self:
             insert = op.get('insert')
-            if insert:
+            if insert or insert == '':
                 if isinstance(insert, str):
                     parts.append(insert)
                 else:

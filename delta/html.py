@@ -258,31 +258,86 @@ def classes_check(op):
     return True
 
 
-def base_image(root, op, tag, key):
-    img = op['insert'].get(key)
-    figure = sub_element(root, 'figure')
-
-    href = img.get('link')
+def create_hyperlink(root, href):
     if href:
-        a = sub_element(figure, 'a')
-        el = sub_element(a, tag)
-
+        a = sub_element(root, 'a')
         a.attrib['href'] = href.get('url')
         if href.get('openNewTab'):
             a.attrib['target'] = '_blank'
             a.attrib['rel'] = 'noopener noreferrer'
+        return a
 
+
+def set_img_attrs(img_tag, attrs):
+    img_tag.attrib['alt'] = attrs.get('alt') or ''
+    if attrs.get('width'):
+        img_tag.attrib['width'] = str(attrs['width'])
+    if attrs.get('height'):
+        img_tag.attrib['height'] = str(attrs['height'])
+    if attrs.get('layout'):
+        img_tag.attrib['layout'] = attrs['layout']
+
+
+@format
+def picture(root, op):
+    pic = op['insert'].get('picture')
+    attributes = pic['attributes']
+    raw_sources = pic['sources']
+
+    lazy_load = attributes.get('lazy-load')
+    srcset_key = 'data-srcset' if lazy_load else 'srcset'
+
+    figure_tag = sub_element(root, 'figure')
+
+    a = create_hyperlink(figure_tag, attributes.get('link'))
+
+    picture_tag = sub_element(a if a is not None else figure_tag, 'picture')
+    if attributes.get('class'):
+        picture_tag.attrib['class'] = attributes['class']
+    if raw_sources:
+        base_src = raw_sources[-1]['srcset'][0]
+        padding_bottom = base_src['height'] / base_src['width'] * 100
+        picture_tag.attrib['style'] = f'padding-bottom: {padding_bottom}%;'
+
+    for raw_source in raw_sources:
+        source_tag = sub_element(picture_tag, 'source')
+        source_tag.attrib[srcset_key] = ', '.join(f'{s["src"]} {s["density"]}x' for s in raw_source['srcset'])
+        source_tag.attrib['type'] = raw_source['type']
+
+        media_query = f'"(max-width: {raw_source["max-width"]}px)"' if raw_source["max-width"] else ''
+        if media_query:
+            source_tag.attrib['media'] = media_query
+
+    def _create_img_tag(img_root, src_key):
+        img_tag = sub_element(img_root, 'img')
+        img_tag.attrib[src_key] = raw_sources[-1]['srcset'][0]['src'] if raw_sources else None
+        set_img_attrs(img_tag, attributes)
+
+    if lazy_load:
+        _create_img_tag(picture_tag, 'data-src')
+        noscript_tag = sub_element(picture_tag, 'noscript')
+        _create_img_tag(noscript_tag, 'src')
     else:
-        el = sub_element(figure, tag)
+        _create_img_tag(picture_tag, 'src')
 
+    return figure_tag
+
+
+@picture.check
+def picture_check(op):
+    insert = op.get('insert')
+    return isinstance(insert, dict) and insert.get('picture')
+
+
+def base_image(root, op, tag, key):
+    img = op['insert'].get(key)
+    figure = sub_element(root, 'figure')
+
+    a = create_hyperlink(figure, img.get('link'))
+
+    el = sub_element(a if a is not None else figure, tag)
     el.attrib['src'] = img.get('src')
-    el.attrib['alt'] = img.get('alt') or ''
-    if img.get('width'):
-        el.attrib['width'] = str(img['width'])
-    if img.get('height'):
-        el.attrib['height'] = str(img['height'])
-    if img.get('layout'):
-        el.attrib['layout'] = img['layout']
+    set_img_attrs(img_tag=el, attrs=img)
     return figure
 
 
@@ -589,8 +644,9 @@ def append_line(root, delta, attrs, index):
         if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
             append_op(root, op)
         elif isinstance(op.get('insert'), dict) and 'form_embed' in op['insert']:
-            form = html.fragment_fromstring(op['insert']['form_embed'])
-            root.append(form)
+            if type(op['insert']['form_embed']) is str:
+                form = html.fragment_fromstring(op['insert']['form_embed'])
+                root.append(form)
         else:
             if block is None:
                 block = sub_element(root, 'p')
