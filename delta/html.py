@@ -361,8 +361,10 @@ def base_video(root, op, tag, key):
 
     else:
         el = sub_element(container, tag)
+        source = sub_element(el, 'source')
+        source.attrib['src'] = vid.get('src')
+        source.attrib['type'] = vid.get('type')
 
-    el.attrib['src'] = vid.get('src')
     el.attrib['alt'] = vid.get('alt') or ''
     if vid.get('autoplay'):
         el.attrib['autoplay'] = str(vid['autoplay'])
@@ -370,6 +372,8 @@ def base_video(root, op, tag, key):
         el.attrib['controls'] = str(vid['controls'])
     if vid.get('loop'):
         el.attrib['loop'] = str(vid['loop'])
+    if vid.get('muted'):
+        el.attrib['muted'] = str(vid['muted'])
     return container
 
 @format
