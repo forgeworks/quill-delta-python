@@ -291,9 +291,13 @@ def picture(root, op):
 
     a = create_hyperlink(figure_tag, attributes.get('link'))
 
-    picture_tag = sub_element(a if a is not None else figure_tag, 'picture')
-    if attributes.get('class'):
-        picture_tag.attrib['class'] = attributes['class']
+    div_tag = sub_element(a if a is not None else figure_tag, 'div')
+    if attributes.get('parent_div_class'):
+        div_tag.attrib['class'] = attributes['parent_div_class']
+
+    picture_tag = sub_element(div_tag, 'picture')
+    if attributes.get('picture_class'):
+        picture_tag.attrib['class'] = attributes['picture_class']
     if raw_sources:
         base_src = raw_sources[-1]['srcset'][0]
         padding_bottom = base_src['height'] / base_src['width'] * 100
