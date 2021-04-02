@@ -649,7 +649,7 @@ def append_line(root, delta, attrs, index):
             '\s+', '_',re.sub('^[^a-zA-Z\s]*|[^a-zA-Z0-9\s]', '', delta.document())
         ).lower()
     for op in delta.ops:
-        if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
+        if isinstance(op.get('insert'), dict) and 'image' in op['insert'] or 'picture' in op['insert'] or 'divider' in op['insert']:
             append_op(root, op)
         elif isinstance(op.get('insert'), dict) and 'form_embed' in op['insert']:
             if type(op['insert']['form_embed']) is str:
