@@ -652,7 +652,7 @@ def append_line(root, delta, attrs, index):
         if isinstance(op.get('insert'), dict) and 'image' in op['insert']:
             append_op(root, op)
         elif isinstance(op.get('insert'), dict) and 'form_embed' in op['insert']:
-            if type(op['insert']['form_embed']) is str:
+            if isinstance(op['insert']['form_embed'], str):
                 form = html.fragment_fromstring(op['insert']['form_embed'])
                 root.append(form)
         else:
