@@ -128,6 +128,8 @@ class Iterator(object):
         result_op = {}
         if op.get('attributes'):
             result_op['attributes'] = op['attributes']
+            if result_op['attributes'].get('color') in ('unset', 'windowtext'):
+                del result_op['attributes']['color']
 
         if op_type == 'retain':
             result_op['retain'] = length
