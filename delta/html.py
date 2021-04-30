@@ -301,7 +301,6 @@ def picture(root, op):
     if raw_sources:
         base_src = raw_sources[-1]['srcset'][0]
         padding_bottom = base_src['height'] / base_src['width'] * 100
-        picture_tag.attrib['style'] = f'padding-bottom: {padding_bottom}%;'
 
     for raw_source in raw_sources:
         source_tag = sub_element(picture_tag, 'source')
