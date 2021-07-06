@@ -282,6 +282,9 @@ class Delta(object):
             else:
                 yield line, iter.next(1).get('attributes', {}), i
                 i += 1
+                if iter.has_next():  # don't add if newline character at the end of ops
+                    yield Delta([{'insert': None}]), iter.next(1).get('attributes', {}), i  # adds <br> tag
+                    i += 1
                 line = Delta()
         if len(line) > 0:
             yield line, {}, i
