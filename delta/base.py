@@ -265,6 +265,7 @@ class Delta(object):
         iter = self.iterator()
         line = self.__class__()
         i = 0
+        is_previous_newline = False
         while iter.has_next():
             if iter.peek_type() != 'insert':
                 return
@@ -277,12 +278,19 @@ class Delta(object):
 
             if index < 0:
                 line.push(iter.next())
+                is_previous_newline = False
             elif index > 0:
                 line.push(iter.next(index))
+                is_previous_newline = False
             else:
-                yield line, iter.next(1).get('attributes', {}), i
+                attributes = iter.next(1).get('attributes', {})
+                yield line, attributes, i
                 i += 1
+                if is_previous_newline:
+                    yield Delta([{'insert': None}]), attributes, i  # adds <br> tag
+                    i += 1
                 line = Delta()
+                is_previous_newline = True
         if len(line) > 0:
             yield line, {}, i
 
